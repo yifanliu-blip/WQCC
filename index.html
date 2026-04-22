@@ -1,45 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Study Planner</title>
+<!-- Moodle Competency Planner Widget -->
+<div id="moodle-competency-planner-wrapper" style="background-color: #f3f4f6; padding: 2rem 1rem; border-radius: 1rem; font-family: 'Inter', sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">
+    
+    <!-- SAFE MOODLE SCRIPT LOADING -->
+    <script>
+        // Moodle uses RequireJS. External scripts can break Moodle if they conflict with it.
+        // We temporarily hide 'define' to force scripts to load safely without crashing Moodle.
+        var _moodle_temp_define = typeof define !== 'undefined' ? define : undefined;
+        if (typeof define !== 'undefined') { window.define = undefined; }
+    </script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+    
+    <script>
+        // Immediately restore Moodle's RequireJS 'define' so the rest of the course loads perfectly
+        if (typeof _moodle_temp_define !== 'undefined') { window.define = _moodle_temp_define; }
+        
+        tailwind.config = {
+            corePlugins: {
+                preflight: false, // Prevents Tailwind from breaking Moodle's native theme/Bootstrap
+            }
         }
-        /* Custom scrollbar for timeline */
-        .timeline-container::-webkit-scrollbar {
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Scoped custom scrollbar for timeline */
+        #moodle-competency-planner-wrapper .timeline-container::-webkit-scrollbar {
             width: 8px;
         }
-        .timeline-container::-webkit-scrollbar-track {
+        #moodle-competency-planner-wrapper .timeline-container::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 4px;
         }
-        .timeline-container::-webkit-scrollbar-thumb {
+        #moodle-competency-planner-wrapper .timeline-container::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 4px;
         }
-        .timeline-container::-webkit-scrollbar-thumb:hover {
+        #moodle-competency-planner-wrapper .timeline-container::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+        /* Reset some basic styles that preflight:false leaves out */
+        #moodle-competency-planner-wrapper button {
+            cursor: pointer;
+        }
+        #moodle-competency-planner-wrapper input, 
+        #moodle-competency-planner-wrapper select {
+            margin: 0;
+            box-sizing: border-box;
+        }
     </style>
-</head>
-<body class="min-h-screen text-gray-800 antialiased py-10 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-indigo-50 to-blue-100">
 
-    <div class="max-w-4xl mx-auto space-y-8">
+    <div class="max-w-4xl mx-auto space-y-8 text-gray-800">
         
         <!-- Header -->
         <div class="text-center">
-            <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight flex justify-center items-center gap-3">
+            <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight flex justify-center items-center gap-3 m-0">
                 <i data-lucide="graduation-cap" class="w-10 h-10 text-indigo-600"></i>
                 Competency Planner
             </h1>
-            <p class="mt-2 text-lg text-gray-600">Design your personalized learning journey to fit your schedule.</p>
+            <p class="mt-2 text-lg text-gray-600 mb-0">Design your personalized learning journey to fit your schedule.</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -47,13 +68,13 @@
             <!-- Configuration Panel (Left/Top) -->
             <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden h-fit">
                 <div class="bg-indigo-600 px-6 py-4">
-                    <h2 class="text-xl font-semibold text-white flex items-center gap-2">
+                    <h2 class="text-xl font-semibold text-white flex items-center gap-2 m-0">
                         <i data-lucide="settings-2" class="w-5 h-5"></i>
                         Plan Configuration
                     </h2>
                 </div>
                 
-                <form id="plannerForm" class="p-6 space-y-6">
+                <form id="mcp_plannerForm" class="p-6 space-y-6 m-0">
                     
                     <!-- Important Notice -->
                     <div class="text-sm text-blue-800 bg-blue-50 p-3.5 rounded-lg border border-blue-100 flex items-start gap-2 shadow-sm">
@@ -63,18 +84,18 @@
 
                     <!-- Start Date -->
                     <div>
-                        <label for="startDate" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="mcp_startDate" class="block text-sm font-medium text-gray-700 mb-2">
                             Select Start Date
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i data-lucide="calendar" class="w-5 h-5 text-gray-400"></i>
                             </div>
-                            <input type="date" id="startDate" required
+                            <input type="date" id="mcp_startDate" required
                                 class="pl-10 block w-full rounded-lg border-gray-300 bg-gray-50 border p-2.5 text-gray-900 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-sm cursor-pointer"
                             >
                         </div>
-                        <p id="dateError" class="mt-2 text-sm text-red-600 hidden">
+                        <p id="mcp_dateError" class="mt-2 text-sm text-red-600 hidden mb-0">
                             <i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i>
                             Selected date is a non-school day (weekend, holiday, or Wednesday for PM schedule). Please choose a valid school day.
                         </p>
@@ -82,14 +103,14 @@
 
                     <!-- Schedule Time -->
                     <div>
-                        <label for="scheduleTime" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="mcp_scheduleTime" class="block text-sm font-medium text-gray-700 mb-2">
                             Schedule Time (AM/PM)
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i data-lucide="clock" class="w-5 h-5 text-gray-400"></i>
                             </div>
-                            <select id="scheduleTime" required
+                            <select id="mcp_scheduleTime" required
                                 class="pl-10 block w-full rounded-lg border-gray-300 bg-gray-50 border p-2.5 text-gray-900 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-sm cursor-pointer appearance-none"
                             >
                                 <option value="AM" selected>AM Schedule</option>
@@ -99,7 +120,7 @@
                                 <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400"></i>
                             </div>
                         </div>
-                        <p class="mt-2 text-xs text-gray-500 bg-blue-50 p-2 rounded border border-blue-100">
+                        <p class="mt-2 text-xs text-gray-500 bg-blue-50 p-2 rounded border border-blue-100 mb-0">
                             <i data-lucide="info" class="w-3 h-3 inline mr-1 text-blue-500"></i>
                             If you are not so sure about AM/PM, consult your evaluation teacher.
                         </p>
@@ -107,14 +128,14 @@
 
                     <!-- Competency Selection -->
                     <div>
-                        <label for="competency" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="mcp_competency" class="block text-sm font-medium text-gray-700 mb-2">
                             Choose Competency
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i data-lucide="book-open" class="w-5 h-5 text-gray-400"></i>
                             </div>
-                            <select id="competency" required
+                            <select id="mcp_competency" required
                                 class="pl-10 block w-full rounded-lg border-gray-300 bg-gray-50 border p-2.5 text-gray-900 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-sm cursor-pointer appearance-none"
                             >
                                 <option value="" disabled selected>Select a competency module...</option>
@@ -129,21 +150,21 @@
                     <!-- Study Pace Slider -->
                     <div class="pt-2">
                         <div class="flex justify-between items-end mb-2">
-                            <label for="studyPace" class="block text-sm font-medium text-gray-700">
+                            <label for="mcp_studyPace" class="block text-sm font-medium text-gray-700">
                                 Study Pace Focus
                             </label>
-                            <span id="paceDisplay" class="inline-flex items-center rounded-md bg-indigo-50 px-2.5 py-0.5 text-sm font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20">
+                            <span id="mcp_paceDisplay" class="inline-flex items-center rounded-md bg-indigo-50 px-2.5 py-0.5 text-sm font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20">
                                 100% (Standard)
                             </span>
                         </div>
-                        <input type="range" id="studyPace" min="60" max="100" value="100" step="1"
+                        <input type="range" id="mcp_studyPace" min="60" max="100" value="100" step="1"
                             class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                         >
                         <div class="flex justify-between text-xs text-gray-500 mt-2">
                             <span>60% (Fast Track)</span>
                             <span>100% (Standard Pace)</span>
                         </div>
-                        <p class="text-xs text-gray-500 mt-2 bg-blue-50 p-2 rounded border border-blue-100">
+                        <p class="text-xs text-gray-500 mt-2 bg-blue-50 p-2 rounded border border-blue-100 mb-0">
                             <i data-lucide="info" class="w-3 h-3 inline mr-1 text-blue-500"></i>
                             Lower percentage means completing the material in less time by increasing your study intensity.
                         </p>
@@ -151,7 +172,7 @@
 
                     <!-- Submit Button -->
                     <button type="submit" 
-                        class="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform active:scale-[0.98]"
+                        class="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform active:scale-[0.98] m-0"
                     >
                         <i data-lucide="sparkles" class="w-5 h-5"></i>
                         Generate My Schedule
@@ -160,468 +181,513 @@
             </div>
 
             <!-- Schedule Output Panel (Right/Bottom) -->
-            <div class="lg:col-span-7 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex flex-col h-[840px]">
+            <div class="lg:col-span-7 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex flex-col h-[800px]">
                 <div class="bg-gray-50 border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                    <h2 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center gap-2 m-0">
                         <i data-lucide="calendar-check" class="w-5 h-5 text-indigo-600"></i>
                         Your Detailed Schedule
                     </h2>
-                    <span id="completionEst" class="text-sm font-medium text-gray-500 hidden"></span>
+                    <span id="mcp_completionEst" class="text-sm font-medium text-gray-500 hidden"></span>
                 </div>
                 
-                <div id="scheduleContainer" class="flex-1 p-6 overflow-y-auto timeline-container hidden relative">
+                <div id="mcp_scheduleContainer" class="flex-1 p-6 overflow-y-auto timeline-container hidden relative">
                     <!-- Dynamic timeline will be injected here -->
                 </div>
                 
                 <!-- Empty State -->
-                <div id="emptyState" class="flex-1 p-6 flex flex-col items-center justify-center text-center">
+                <div id="mcp_emptyState" class="flex-1 p-6 flex flex-col items-center justify-center text-center">
                     <div class="bg-indigo-50 p-4 rounded-full mb-4">
                         <i data-lucide="layout-list" class="w-12 h-12 text-indigo-300"></i>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-900">No schedule generated yet</h3>
-                    <p class="mt-1 text-gray-500 max-w-sm">Fill out the configuration form and click "Generate My Schedule" to see your personalized timeline.</p>
+                    <h3 class="text-lg font-medium text-gray-900 m-0">No schedule generated yet</h3>
+                    <p class="mt-1 text-gray-500 max-w-sm mb-0">Fill out the configuration form and click "Generate My Schedule" to see your personalized timeline.</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
+        // Wrapped in an IIFE to prevent variables leaking into Moodle's global scope
+        (function() {
+            function initializePlanner() {
+                // Prevent double initialization in Moodle editors
+                if (window._plannerInitialized) return;
+                window._plannerInitialized = true;
 
-        // Database: The underlying algorithm data hidden from the user interface
-        // standardDays represents the 100% pace duration to complete the competency.
-        const competenciesDB = [
-            {
-                id: '961-034',
-                title: '961-034 Tables and Charts',
-                hours: 60, 
-                units: [
-                    "Unit 1: Table Creation Basics",
-                    "Unit 2: Advanced Table Formatting",
-                    "Unit 3: Introduction to Charts",
-                    "Unit 4: Complex Data Visualizations"
-                ],
-                assignments: [
-                    "Assignment 1: Structuring Data",
-                    "Assignment 2: Dashboard Visualization"
-                ]
-            },
-            {
-                id: '961-074',
-                title: '961-074 Processing Source Documents',
-                hours: 75,
-                blocks: [
-                    { title: "Unit 1", desc: "Accounting Equation & Balance Sheets", standardDays: 4, mandatory: false },
-                    { title: "Unit 2", desc: "Journal Entries (Submissions: A1, A2)", standardDays: 8, mandatory: false },
-                    { title: "Unit 3", desc: "Periodic Inventory & Taxes (Submissions: 1, 2, 3)", standardDays: 6, mandatory: false },
-                    { title: "Unit 4", desc: "Ledgers & Trial Balances (Submissions: 1, 2)", standardDays: 2, mandatory: false },
-                    { title: "Unit 5", desc: "Catching & Fixing Errors (Submission: A1)", standardDays: 2, mandatory: false },
-                    { title: "Unit 6", desc: "General Review 1", standardDays: 1, mandatory: false },
-                    { title: "Unit 6", desc: "General Review 2 + Q&A (Mandatory)", standardDays: 1, mandatory: true, type: 'pretest' },
-                    { title: "Exam", desc: "Final Competency Exam (Mandatory)", standardDays: 1, mandatory: true, type: 'exam' }
-                ]
-            },
-            {
-                id: '961-122',
-                title: '961-122 Payroll',
-                hours: 45,
-                units: [
-                    "Unit 1: Payroll Fundamentals",
-                    "Unit 2: Calculating Deductions",
-                    "Unit 3: Government Remittances"
-                ],
-                assignments: [
-                    "Assignment 1: Paystub Calculation",
-                    "Assignment 2: Remittance Forms"
-                ]
-            },
-            {
-                id: '961-185',
-                title: '961-185 End-of-Period Tasks',
-                hours: 75,
-                units: [
-                    "Unit 1: Bank Reconciliations",
-                    "Unit 2: Adjusting Journal Entries",
-                    "Unit 3: The Trial Balance",
-                    "Unit 4: Generating Financial Statements",
-                    "Unit 5: Period Closing Procedures"
-                ],
-                assignments: [
-                    "Assignment 1: Full Bank Reconciliation",
-                    "Assignment 2: Draft Financial Statements"
-                ]
-            },
-            {
-                id: '961-195',
-                title: '961-195 Year-End Tasks',
-                hours: 75,
-                units: [
-                    "Unit 1: Year-End Adjustments",
-                    "Unit 2: Depreciation & Amortization",
-                    "Unit 3: Tax Preparation Basics",
-                    "Unit 4: Final Trial Balance",
-                    "Unit 5: Closing the Books"
-                ],
-                assignments: [
-                    "Assignment 1: Comprehensive Adjusting Entries",
-                    "Assignment 2: Year-End Rollover Exercise"
-                ]
-            }
-        ];
+                // Initialize Lucide icons safely
+                setTimeout(() => {
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }, 100);
 
-        // DOM Elements
-        const form = document.getElementById('plannerForm');
-        const startDateInput = document.getElementById('startDate');
-        const scheduleTimeSelect = document.getElementById('scheduleTime');
-        const competencySelect = document.getElementById('competency');
-        const studyPaceInput = document.getElementById('studyPace');
-        const paceDisplay = document.getElementById('paceDisplay');
-        const scheduleContainer = document.getElementById('scheduleContainer');
-        const emptyState = document.getElementById('emptyState');
-        const completionEst = document.getElementById('completionEst');
-        const dateError = document.getElementById('dateError');
-
-        // Define Non-School Holidays (2025-2026 School Year)
-        const holidays = new Set([
-            '2025-09-01', '2025-09-19', '2025-10-13', '2025-11-07',
-            // Dec 22 to 26
-            '2025-12-22', '2025-12-23', '2025-12-24', '2025-12-25', '2025-12-26',
-            // Dec 29 to Jan 05
-            '2025-12-29', '2025-12-30', '2025-12-31', '2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04', '2026-01-05',
-            // Feb 10
-            '2026-02-10',
-            // Mar 02 to 09
-            '2026-03-02', '2026-03-03', '2026-03-04', '2026-03-05', '2026-03-06', '2026-03-07', '2026-03-08', '2026-03-09',
-            // May 15
-            '2026-05-15'
-        ]);
-
-        // Helper: Check if a date is a valid school day (Not weekend, not holiday)
-        function isSchoolDay(date, isPM = false) {
-            const day = date.getDay();
-            if (day === 0 || day === 6) return false; // 0 = Sunday, 6 = Saturday
-            if (isPM && day === 3) return false; // PM schedule takes Wednesdays off
-            
-            // Format to YYYY-MM-DD reliably based on local time
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const d = String(date.getDate()).padStart(2, '0');
-            const dateString = `${year}-${month}-${d}`;
-            
-            if (holidays.has(dateString)) return false;
-            return true;
-        }
-
-        // Validate Start Date on Change
-        function validateStartDate() {
-            if (!startDateInput.value) {
-                dateError.classList.add('hidden');
-                return;
-            }
-            
-            const isPM = scheduleTimeSelect.value === 'PM';
-            
-            // Parse safely without timezone shifting issues
-            const [y, m, d] = startDateInput.value.split('-');
-            const selectedDate = new Date(y, m - 1, d);
-            
-            if (!isSchoolDay(selectedDate, isPM)) {
-                dateError.classList.remove('hidden');
-                startDateInput.value = ''; // clear invalid selection
-            } else {
-                dateError.classList.add('hidden');
-            }
-        }
-
-        startDateInput.addEventListener('change', validateStartDate);
-        scheduleTimeSelect.addEventListener('change', validateStartDate);
-
-        // Populate Competency Dropdown
-        competenciesDB.forEach(comp => {
-            const option = document.createElement('option');
-            option.value = comp.id;
-            option.textContent = comp.title;
-            competencySelect.appendChild(option);
-        });
-
-        // Update Pace Display
-        studyPaceInput.addEventListener('input', (e) => {
-            const val = e.target.value;
-            let text = `${val}%`;
-            if (val == 100) text += ' (Standard)';
-            else if (val <= 70) text += ' (Fast Track)';
-            else text += ' (Accelerated)';
-            paceDisplay.textContent = text;
-        });
-
-        // Helper: Add only valid school days to a date
-        function addSchoolDays(startDate, daysToAdd, isPM = false) {
-            let currentDate = new Date(startDate);
-            let daysAdded = 0;
-            
-            while (daysAdded < daysToAdd) {
-                currentDate.setDate(currentDate.getDate() + 1);
-                if (isSchoolDay(currentDate, isPM)) {
-                    daysAdded++;
-                }
-            }
-            return currentDate;
-        }
-
-        // Helper: Format Date clearly
-        function formatDate(date) {
-            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
-        }
-
-        // Generate Schedule Logic
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            // 1. Gather Inputs
-            const startDateVal = startDateInput.value;
-            const compId = competencySelect.value;
-            const paceVal = parseInt(studyPaceInput.value, 10);
-            const isPM = scheduleTimeSelect.value === 'PM';
-
-            if (!startDateVal || !compId) return;
-
-            // Parse safely to avoid UTC offset shifting the date to the day prior
-            const [y, m, d] = startDateVal.split('-');
-            const startDate = new Date(y, m - 1, d);
-            
-            const compData = competenciesDB.find(c => c.id === compId);
-
-            // 2. Algorithm Core
-            // Base calculation: 3 hours per standard school day
-            const standardDays = compData.hours / 3;
-            const scheduleItems = [];
-            scheduleItems.push({ 
-                type: 'start', 
-                title: 'Start of Competency', 
-                desc: '<ul class="list-disc pl-5 mt-1 space-y-1"><li>Get textbook Accounting Principles and navigate Moodle page.</li><li>Please book a registration appointment with Yifan</li></ul>', 
-                icon: 'flag', 
-                dayOffset: 0 
-            });
-
-            // Branch: Use predefined structured blocks if they exist (e.g., 961-074)
-            if (compData.blocks) {
-                let runningStandardReducible = 0;
-                let currentOffset = 0;
-
-                compData.blocks.forEach(block => {
-                    if (!block.mandatory) {
-                        // Apply pace proportionally to the cumulative standard days
-                        runningStandardReducible += block.standardDays;
-                        let actualEndDay = Math.ceil(runningStandardReducible * (paceVal / 100));
-                        currentOffset = actualEndDay - 1; // 0-indexed day offset
-
-                        scheduleItems.push({
-                            type: 'unit',
-                            title: block.title,
-                            desc: block.desc,
-                            dayOffset: Math.max(0, currentOffset),
-                            icon: 'book-open'
-                        });
-                    } else {
-                        // Mandatory days strictly add exactly 1 day
-                        currentOffset += block.standardDays;
-                        scheduleItems.push({
-                            type: block.type || 'pretest',
-                            title: block.title,
-                            desc: block.desc,
-                            dayOffset: currentOffset,
-                            icon: block.type === 'exam' ? 'file-text' : 'file-question'
-                        });
+                // Database: The underlying algorithm data hidden from the user interface
+                const competenciesDB = [
+                    {
+                        id: '961-034',
+                        title: '961-034 Tables and Charts',
+                        hours: 60, 
+                        units: [
+                            "Unit 1: Table Creation Basics",
+                            "Unit 2: Advanced Table Formatting",
+                            "Unit 3: Introduction to Charts",
+                            "Unit 4: Complex Data Visualizations"
+                        ],
+                        assignments: [
+                            "Assignment 1: Structuring Data",
+                            "Assignment 2: Dashboard Visualization"
+                        ]
+                    },
+                    {
+                        id: '961-074',
+                        title: '961-074 Processing Source Documents',
+                        hours: 75,
+                        blocks: [
+                            { 
+                                title: "Unit 1: Accounting Equation & Balance Sheets", 
+                                desc: "<ul class='list-disc pl-5 mt-1 space-y-1 mb-0 text-sm'><li>Understand the fundamental accounting equation (Assets = Liabilities + Equity).</li><li>Identify and classify account types.</li><li>Analyze how business transactions affect the balance sheet.</li><li>Prepare a basic balance sheet.</li></ul>", 
+                                standardDays: 4, 
+                                mandatory: false 
+                            },
+                            { 
+                                title: "Unit 2: Journal Entries", 
+                                desc: "<ul class='list-disc pl-5 mt-1 space-y-1 mb-0 text-sm'><li>Apply the rules of debit and credit.</li><li>Analyze source documents (invoices, receipts, cheques).</li><li>Record daily transactions in the general journal.</li><li><strong>Complete Submissions: A1, A2</strong></li></ul>", 
+                                standardDays: 8, 
+                                mandatory: false 
+                            },
+                            { 
+                                title: "Unit 3: Periodic Inventory & Taxes", 
+                                desc: "<ul class='list-disc pl-5 mt-1 space-y-1 mb-0 text-sm'><li>Understand the periodic inventory system and Cost of Goods Sold (COGS).</li><li>Record purchases, purchase returns, and sales.</li><li>Calculate and record sales taxes from source documents.</li><li><strong>Complete Submissions: 1, 2, 3</strong></li></ul>", 
+                                standardDays: 6, 
+                                mandatory: false 
+                            },
+                            { 
+                                title: "Unit 4: Ledgers & Trial Balances", 
+                                desc: "<ul class='list-disc pl-5 mt-1 space-y-1 mb-0 text-sm'><li>Post journal entries from the general journal to the general ledger.</li><li>Calculate the ending balances for all ledger accounts.</li><li>Extract ledger balances to prepare an unadjusted trial balance.</li><li><strong>Complete Submissions: 1, 2</strong></li></ul>", 
+                                standardDays: 2, 
+                                mandatory: false 
+                            },
+                            { 
+                                title: "Unit 5: Catching & Fixing Errors", 
+                                desc: "<ul class='list-disc pl-5 mt-1 space-y-1 mb-0 text-sm'><li>Identify common bookkeeping errors (transposition, omission).</li><li>Analyze the trial balance to locate discrepancies.</li><li>Prepare and post correcting journal entries.</li><li><strong>Complete Submission: A1</strong></li></ul>", 
+                                standardDays: 2, 
+                                mandatory: false 
+                            },
+                            { 
+                                title: "Unit 6: General Review 1", 
+                                desc: "<ul class='list-disc pl-5 mt-1 space-y-1 mb-0 text-sm'><li>Review all journalizing, posting, and trial balance procedures.</li><li>Identify personal areas of weakness.</li><li>Complete practice exercises to build speed and accuracy.</li></ul>", 
+                                standardDays: 1, 
+                                mandatory: false 
+                            },
+                            { 
+                                title: "Unit 6: General Review 2 + Q&A", 
+                                desc: "<ul class='list-disc pl-5 mt-1 space-y-1 mb-0 text-sm'><li>Complete the mandatory pretest under exam-like conditions.</li><li>Review pretest results and clarify any remaining doubts.</li><li>Prepare all permitted materials for the final exam.</li></ul>", 
+                                standardDays: 1, 
+                                mandatory: true, 
+                                type: 'pretest' 
+                            },
+                            { 
+                                title: "Final Competency Exam", 
+                                desc: "<ul class='list-disc pl-5 mt-1 space-y-1 mb-0 text-sm'><li>Complete the final competency examination.</li><li>Ensure all source documents are correctly processed and recorded.</li></ul>", 
+                                standardDays: 1, 
+                                mandatory: true, 
+                                type: 'exam' 
+                            }
+                        ]
+                    },
+                    {
+                        id: '961-122',
+                        title: '961-122 Payroll',
+                        hours: 45,
+                        units: [
+                            "Unit 1: Payroll Fundamentals",
+                            "Unit 2: Calculating Deductions",
+                            "Unit 3: Government Remittances"
+                        ],
+                        assignments: [
+                            "Assignment 1: Paystub Calculation",
+                            "Assignment 2: Remittance Forms"
+                        ]
+                    },
+                    {
+                        id: '961-185',
+                        title: '961-185 End-of-Period Tasks',
+                        hours: 75,
+                        units: [
+                            "Unit 1: Bank Reconciliations",
+                            "Unit 2: Adjusting Journal Entries",
+                            "Unit 3: The Trial Balance",
+                            "Unit 4: Generating Financial Statements",
+                            "Unit 5: Period Closing Procedures"
+                        ],
+                        assignments: [
+                            "Assignment 1: Full Bank Reconciliation",
+                            "Assignment 2: Draft Financial Statements"
+                        ]
+                    },
+                    {
+                        id: '961-195',
+                        title: '961-195 Year-End Tasks',
+                        hours: 75,
+                        units: [
+                            "Unit 1: Year-End Adjustments",
+                            "Unit 2: Depreciation & Amortization",
+                            "Unit 3: Tax Preparation Basics",
+                            "Unit 4: Final Trial Balance",
+                            "Unit 5: Closing the Books"
+                        ],
+                        assignments: [
+                            "Assignment 1: Comprehensive Adjusting Entries",
+                            "Assignment 2: Year-End Rollover Exercise"
+                        ]
                     }
-                });
-            } else {
-                // Fallback Branch: Automatically distribute standard units
-                const fixedDays = 2; 
-                const learningDaysStandard = standardDays - fixedDays;
-                
-                // Apply pace ONLY to the learning days (hours minus pretest/exam)
-                const learningDaysActual = Math.ceil(learningDaysStandard * (paceVal / 100));
-                
-                const numUnits = compData.units.length;
-                const numAssignments = compData.assignments.length;
-                
-                if (learningDaysActual > 0) {
-                    const daysPerUnit = learningDaysActual / numUnits;
-                    compData.units.forEach((unit, index) => {
-                        const targetDayOffset = Math.floor(daysPerUnit * index + (daysPerUnit / 2));
-                        scheduleItems.push({ 
-                            type: 'unit', 
-                            title: unit, 
-                            desc: 'Complete required reading, lectures, and practice quizzes.', 
-                            dayOffset: Math.min(targetDayOffset, learningDaysActual - 1),
-                            icon: 'book-open' 
-                        });
-                    });
+                ];
 
-                    const daysPerAssignment = learningDaysActual / numAssignments;
-                    compData.assignments.forEach((assignment, index) => {
-                        let targetDayOffset = Math.floor(daysPerAssignment * (index + 1)) - 1; 
-                        if (index === numAssignments - 1) {
-                            targetDayOffset = learningDaysActual - 1; 
-                        }
-                        scheduleItems.push({ 
-                            type: 'assignment', 
-                            title: assignment, 
-                            desc: 'Submit deliverables to the evaluation portal.', 
-                            dayOffset: Math.max(0, Math.min(targetDayOffset, learningDaysActual - 1)),
-                            icon: 'clipboard-check' 
-                        });
-                    });
+                // DOM Elements with Moodle-safe IDs
+                const form = document.getElementById('mcp_plannerForm');
+                const startDateInput = document.getElementById('mcp_startDate');
+                const scheduleTimeSelect = document.getElementById('mcp_scheduleTime');
+                const competencySelect = document.getElementById('mcp_competency');
+                const studyPaceInput = document.getElementById('mcp_studyPace');
+                const paceDisplay = document.getElementById('mcp_paceDisplay');
+                const scheduleContainer = document.getElementById('mcp_scheduleContainer');
+                const emptyState = document.getElementById('mcp_emptyState');
+                const completionEst = document.getElementById('mcp_completionEst');
+                const dateError = document.getElementById('mcp_dateError');
+
+                // Define Non-School Holidays (2025-2026 School Year)
+                const holidays = new Set([
+                    '2025-09-01', '2025-09-19', '2025-10-13', '2025-11-07',
+                    '2025-12-22', '2025-12-23', '2025-12-24', '2025-12-25', '2025-12-26',
+                    '2025-12-29', '2025-12-30', '2025-12-31', '2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04', '2026-01-05',
+                    '2026-02-10',
+                    '2026-03-02', '2026-03-03', '2026-03-04', '2026-03-05', '2026-03-06', '2026-03-07', '2026-03-08', '2026-03-09',
+                    '2026-05-15'
+                ]);
+
+                // Helper: Check if a date is a valid school day
+                function isSchoolDay(date, isPM = false) {
+                    const day = date.getDay();
+                    if (day === 0 || day === 6) return false; 
+                    if (isPM && day === 3) return false; 
+                    
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const d = String(date.getDate()).padStart(2, '0');
+                    const dateString = `${year}-${month}-${d}`;
+                    
+                    if (holidays.has(dateString)) return false;
+                    return true;
                 }
 
-                scheduleItems.push({
-                    type: 'pretest',
-                    title: 'Mandatory Pretest',
-                    desc: 'Fixed 3-hour requirement (1 school day). Cannot be accelerated.',
-                    dayOffset: learningDaysActual,
-                    icon: 'file-question'
-                });
-
-                scheduleItems.push({
-                    type: 'exam',
-                    title: 'Final Examination',
-                    desc: 'Fixed 3-hour requirement (1 school day). Cannot be accelerated.',
-                    dayOffset: learningDaysActual + 1,
-                    icon: 'file-text'
-                });
-            }
-
-            // Sort timeline chronologically by calculated offset days
-            scheduleItems.sort((a, b) => a.dayOffset - b.dayOffset);
-            
-            // Map calculated dates to the sorted items (using school days logic)
-            let currentSchedule = [];
-            
-            // Dynamically locate the pretest item to align the strict Exam logic properly
-            const pretestItem = scheduleItems.find(i => i.type === 'pretest');
-            const pretestDayOffset = pretestItem ? pretestItem.dayOffset : 0;
-            const pretestDate = addSchoolDays(startDate, pretestDayOffset, isPM);
-
-            scheduleItems.forEach(item => {
-                let itemDate;
-                let dayDisplay;
-
-                if (item.type === 'exam') {
-                    // Exam must be on Tuesday (2) or Thursday (4)
-                    itemDate = addSchoolDays(pretestDate, 1, isPM);
-                    while ((itemDate.getDay() !== 2 && itemDate.getDay() !== 4) || !isSchoolDay(itemDate, isPM)) {
-                        itemDate.setDate(itemDate.getDate() + 1);
+                // Validate Start Date
+                function validateStartDate() {
+                    if (!startDateInput.value) {
+                        dateError.classList.add('hidden');
+                        return;
                     }
                     
-                    // Calculate exact school days elapsed until exam
-                    let elapsed = 0;
-                    let tempD = new Date(startDate);
-                    while (tempD < itemDate) {
-                        tempD.setDate(tempD.getDate() + 1);
-                        if (isSchoolDay(tempD, isPM)) elapsed++;
+                    const isPM = scheduleTimeSelect.value === 'PM';
+                    
+                    const [y, m, d] = startDateInput.value.split('-');
+                    const selectedDate = new Date(y, m - 1, d);
+                    
+                    if (!isSchoolDay(selectedDate, isPM)) {
+                        dateError.classList.remove('hidden');
+                        startDateInput.value = ''; 
+                    } else {
+                        dateError.classList.add('hidden');
                     }
-                    dayDisplay = `Day ${elapsed + 1}`;
-                } else {
-                    itemDate = addSchoolDays(startDate, item.dayOffset, isPM);
-                    dayDisplay = `Day ${item.dayOffset + 1}`;
                 }
 
-                currentSchedule.push({
-                    ...item,
-                    date: itemDate,
-                    dayDisplay: dayDisplay
+                startDateInput.addEventListener('change', validateStartDate);
+                scheduleTimeSelect.addEventListener('change', validateStartDate);
+
+                // Populate Competency Dropdown
+                competenciesDB.forEach(comp => {
+                    const option = document.createElement('option');
+                    option.value = comp.id;
+                    option.textContent = comp.title;
+                    competencySelect.appendChild(option);
                 });
-            });
 
-            // The completion date is the same as the final exam date
-            const examItem = currentSchedule.find(i => i.type === 'exam');
-            const completionDate = new Date(examItem.date);
-            const totalActualDays = parseInt(examItem.dayDisplay.replace('Day ', ''), 10);
+                // Update Pace Display
+                studyPaceInput.addEventListener('input', (e) => {
+                    const val = e.target.value;
+                    let text = `${val}%`;
+                    if (val == 100) text += ' (Standard)';
+                    else if (val <= 70) text += ' (Fast Track)';
+                    else text += ' (Accelerated)';
+                    paceDisplay.textContent = text;
+                });
 
-            // 3. Render Output
-            renderSchedule(currentSchedule, totalActualDays, completionDate);
-        });
-
-        function renderSchedule(scheduleData, totalDays, completionDate) {
-            // Hide empty state, show container
-            emptyState.classList.add('hidden');
-            scheduleContainer.classList.remove('hidden');
-            completionEst.classList.remove('hidden');
-
-            completionEst.innerHTML = `<span class="font-bold text-indigo-700">${totalDays} Days</span> · Est. End: ${formatDate(completionDate)}`;
-
-            // Build Timeline HTML
-            let html = '<div class="relative border-l-2 border-indigo-200 ml-3 space-y-8 pb-4">';
-
-            scheduleData.forEach((item, index) => {
-                const isLast = index === scheduleData.length - 1;
-                
-                // Determine styling based on type
-                let bgColor = 'bg-white';
-                let iconColor = 'text-gray-500';
-                let badgeColor = 'bg-gray-100 text-gray-800';
-
-                if (item.type === 'start') {
-                    bgColor = 'bg-indigo-100';
-                    iconColor = 'text-indigo-600';
-                    badgeColor = 'bg-indigo-100 text-indigo-800';
-                } else if (item.type === 'end') {
-                    bgColor = 'bg-green-100';
-                    iconColor = 'text-green-600';
-                    badgeColor = 'bg-green-100 text-green-800';
-                } else if (item.type === 'assignment') {
-                    bgColor = 'bg-amber-100';
-                    iconColor = 'text-amber-600';
-                    badgeColor = 'bg-amber-100 text-amber-800 ring-amber-600/20 ring-1 ring-inset';
-                } else if (item.type === 'pretest') {
-                    bgColor = 'bg-purple-100';
-                    iconColor = 'text-purple-600';
-                    badgeColor = 'bg-purple-100 text-purple-800 ring-purple-600/20 ring-1 ring-inset';
-                } else if (item.type === 'exam') {
-                    bgColor = 'bg-rose-100';
-                    iconColor = 'text-rose-600';
-                    badgeColor = 'bg-rose-100 text-rose-800 ring-rose-600/20 ring-1 ring-inset';
-                } else {
-                    bgColor = 'bg-blue-50';
-                    iconColor = 'text-blue-500';
-                    badgeColor = 'bg-blue-50 text-blue-700';
+                function addSchoolDays(startDate, daysToAdd, isPM = false) {
+                    let currentDate = new Date(startDate);
+                    let daysAdded = 0;
+                    
+                    while (daysAdded < daysToAdd) {
+                        currentDate.setDate(currentDate.getDate() + 1);
+                        if (isSchoolDay(currentDate, isPM)) {
+                            daysAdded++;
+                        }
+                    }
+                    return currentDate;
                 }
 
-                html += `
-                    <div class="relative pl-8 sm:pl-10 group">
-                        <!-- Timeline Dot -->
-                        <div class="absolute -left-4 top-1 w-8 h-8 rounded-full border-4 border-white ${bgColor} flex items-center justify-center shadow-sm">
-                            <i data-lucide="${item.icon}" class="w-4 h-4 ${iconColor}"></i>
-                        </div>
+                function formatDate(date) {
+                    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+                    return date.toLocaleDateString('en-US', options);
+                }
+
+                // Generate Schedule Logic
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+
+                    const startDateVal = startDateInput.value;
+                    const compId = competencySelect.value;
+                    const paceVal = parseInt(studyPaceInput.value, 10);
+                    const isPM = scheduleTimeSelect.value === 'PM';
+
+                    if (!startDateVal || !compId) return;
+
+                    const [y, m, d] = startDateVal.split('-');
+                    const startDate = new Date(y, m - 1, d);
+                    
+                    const compData = competenciesDB.find(c => c.id === compId);
+
+                    const standardDays = compData.hours / 3;
+                    const fixedDays = 2; // Pretest + Exam
+                    const learningDaysStandard = standardDays - fixedDays;
+                    const learningDaysActual = Math.ceil(learningDaysStandard * (paceVal / 100));
+
+                    const scheduleItems = [];
+                    scheduleItems.push({ 
+                        type: 'start', 
+                        title: 'Start of Competency', 
+                        desc: '<ul class="list-disc pl-5 mt-1 space-y-1 mb-0"><li>Get textbook Accounting Principles and navigate Moodle page.</li><li>Please book a registration appointment with Yifan</li></ul>', 
+                        icon: 'flag', 
+                        dayOffset: 0 
+                    });
+
+                    if (compData.blocks) {
+                        let runningStandardReducible = 0;
+                        let currentOffset = 0;
+
+                        compData.blocks.forEach(block => {
+                            if (!block.mandatory) {
+                                runningStandardReducible += block.standardDays;
+                                let actualEndDay = Math.ceil(runningStandardReducible * (paceVal / 100));
+                                currentOffset = actualEndDay - 1;
+
+                                scheduleItems.push({
+                                    type: 'unit',
+                                    title: block.title,
+                                    desc: block.desc,
+                                    dayOffset: Math.max(0, currentOffset),
+                                    icon: 'book-open'
+                                });
+                            } else {
+                                currentOffset += block.standardDays;
+                                scheduleItems.push({
+                                    type: block.type || 'pretest',
+                                    title: block.title,
+                                    desc: block.desc,
+                                    dayOffset: currentOffset,
+                                    icon: block.type === 'exam' ? 'file-text' : 'file-question'
+                                });
+                            }
+                        });
+                    } else {
+                        const numUnits = compData.units.length;
+                        const numAssignments = compData.assignments.length;
                         
-                        <!-- Content Card -->
-                        <div class="bg-white border border-gray-100 rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow">
-                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
-                                <h3 class="text-base sm:text-lg font-bold text-gray-900">${item.title}</h3>
-                                <div class="flex flex-col sm:items-end text-sm">
-                                    <span class="font-medium text-gray-900">${formatDate(item.date)}</span>
-                                    <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium mt-1 ${badgeColor} w-fit">
-                                        ${item.dayDisplay}
-                                    </span>
+                        if (learningDaysActual > 0) {
+                            const daysPerUnit = learningDaysActual / numUnits;
+                            compData.units.forEach((unit, index) => {
+                                const targetDayOffset = Math.floor(daysPerUnit * index + (daysPerUnit / 2));
+                                scheduleItems.push({ 
+                                    type: 'unit', 
+                                    title: unit, 
+                                    desc: 'Complete required reading, lectures, and practice quizzes.', 
+                                    dayOffset: Math.min(targetDayOffset, learningDaysActual - 1),
+                                    icon: 'book-open' 
+                                });
+                            });
+
+                            const daysPerAssignment = learningDaysActual / numAssignments;
+                            compData.assignments.forEach((assignment, index) => {
+                                let targetDayOffset = Math.floor(daysPerAssignment * (index + 1)) - 1; 
+                                if (index === numAssignments - 1) {
+                                    targetDayOffset = learningDaysActual - 1; 
+                                }
+                                scheduleItems.push({ 
+                                    type: 'assignment', 
+                                    title: assignment, 
+                                    desc: 'Submit deliverables to the evaluation portal.', 
+                                    dayOffset: Math.max(0, Math.min(targetDayOffset, learningDaysActual - 1)),
+                                    icon: 'clipboard-check' 
+                                });
+                            });
+                        }
+
+                        scheduleItems.push({
+                            type: 'pretest',
+                            title: 'Mandatory Pretest',
+                            desc: 'Fixed 3-hour requirement (1 school day). Cannot be accelerated.',
+                            dayOffset: learningDaysActual,
+                            icon: 'file-question'
+                        });
+
+                        scheduleItems.push({
+                            type: 'exam',
+                            title: 'Final Examination',
+                            desc: 'Fixed 3-hour requirement (1 school day). Cannot be accelerated.',
+                            dayOffset: learningDaysActual + 1,
+                            icon: 'file-text'
+                        });
+                    }
+
+                    // Dynamic Check-in
+                    const checkinInterval = Math.max(5, Math.floor(learningDaysActual / 3));
+                    for (let i = checkinInterval; i < learningDaysActual - 1; i += checkinInterval) {
+                        scheduleItems.push({
+                            type: 'checkin',
+                            title: 'Mandatory Teacher Check-in',
+                            desc: 'Meet with me (your evaluation teacher) to discuss your progress, review your recent assignments, and ensure you are on track.',
+                            dayOffset: i,
+                            icon: 'user-check'
+                        });
+                    }
+
+                    // Specific Pretest Check-in
+                    scheduleItems.push({
+                        type: 'checkin',
+                        title: 'Mandatory Check-in: Pre-Test Readiness',
+                        desc: 'Meet with me after your final general review. We will verify your understanding and ensure you are fully prepared before you take the Pretest.',
+                        dayOffset: Math.max(0, learningDaysActual - 1),
+                        icon: 'user-check'
+                    });
+
+                    scheduleItems.sort((a, b) => a.dayOffset - b.dayOffset);
+                    
+                    let currentSchedule = [];
+                    const pretestItem = scheduleItems.find(i => i.type === 'pretest');
+                    const pretestDayOffset = pretestItem ? pretestItem.dayOffset : 0;
+                    const pretestDate = addSchoolDays(startDate, pretestDayOffset, isPM);
+
+                    scheduleItems.forEach(item => {
+                        let itemDate;
+                        let dayDisplay;
+
+                        if (item.type === 'exam') {
+                            itemDate = addSchoolDays(pretestDate, 1, isPM);
+                            while ((itemDate.getDay() !== 2 && itemDate.getDay() !== 4) || !isSchoolDay(itemDate, isPM)) {
+                                itemDate.setDate(itemDate.getDate() + 1);
+                            }
+                            
+                            let elapsed = 0;
+                            let tempD = new Date(startDate);
+                            while (tempD < itemDate) {
+                                tempD.setDate(tempD.getDate() + 1);
+                                if (isSchoolDay(tempD, isPM)) elapsed++;
+                            }
+                            dayDisplay = `Day ${elapsed + 1}`;
+                        } else {
+                            itemDate = addSchoolDays(startDate, item.dayOffset, isPM);
+                            dayDisplay = `Day ${item.dayOffset + 1}`;
+                        }
+
+                        currentSchedule.push({
+                            ...item,
+                            date: itemDate,
+                            dayDisplay: dayDisplay
+                        });
+                    });
+
+                    const examItem = currentSchedule.find(i => i.type === 'exam');
+                    const completionDate = new Date(examItem.date);
+                    const totalActualDays = parseInt(examItem.dayDisplay.replace('Day ', ''), 10);
+
+                    renderSchedule(currentSchedule, totalActualDays, completionDate);
+                });
+
+                function renderSchedule(scheduleData, totalDays, completionDate) {
+                    emptyState.classList.add('hidden');
+                    scheduleContainer.classList.remove('hidden');
+                    completionEst.classList.remove('hidden');
+
+                    completionEst.innerHTML = `<span class="font-bold text-indigo-700">${totalDays} Days</span> · Est. End: ${formatDate(completionDate)}`;
+
+                    let html = '<div class="relative border-l-2 border-indigo-200 ml-3 space-y-8 pb-4">';
+
+                    scheduleData.forEach((item) => {
+                        let bgColor = 'bg-white';
+                        let iconColor = 'text-gray-500';
+                        let badgeColor = 'bg-gray-100 text-gray-800';
+
+                        if (item.type === 'start') {
+                            bgColor = 'bg-indigo-100';
+                            iconColor = 'text-indigo-600';
+                            badgeColor = 'bg-indigo-100 text-indigo-800';
+                        } else if (item.type === 'end') {
+                            bgColor = 'bg-green-100';
+                            iconColor = 'text-green-600';
+                            badgeColor = 'bg-green-100 text-green-800';
+                        } else if (item.type === 'assignment') {
+                            bgColor = 'bg-amber-100';
+                            iconColor = 'text-amber-600';
+                            badgeColor = 'bg-amber-100 text-amber-800 ring-amber-600/20 ring-1 ring-inset';
+                        } else if (item.type === 'pretest') {
+                            bgColor = 'bg-purple-100';
+                            iconColor = 'text-purple-600';
+                            badgeColor = 'bg-purple-100 text-purple-800 ring-purple-600/20 ring-1 ring-inset';
+                        } else if (item.type === 'exam') {
+                            bgColor = 'bg-rose-100';
+                            iconColor = 'text-rose-600';
+                            badgeColor = 'bg-rose-100 text-rose-800 ring-rose-600/20 ring-1 ring-inset';
+                        } else if (item.type === 'checkin') {
+                            bgColor = 'bg-teal-100';
+                            iconColor = 'text-teal-600';
+                            badgeColor = 'bg-teal-100 text-teal-800 ring-teal-600/20 ring-1 ring-inset';
+                        } else {
+                            bgColor = 'bg-blue-50';
+                            iconColor = 'text-blue-500';
+                            badgeColor = 'bg-blue-50 text-blue-700';
+                        }
+
+                        html += `
+                            <div class="relative pl-8 sm:pl-10 group">
+                                <div class="absolute -left-4 top-1 w-8 h-8 rounded-full border-4 border-white ${bgColor} flex items-center justify-center shadow-sm">
+                                    <i data-lucide="${item.icon}" class="w-4 h-4 ${iconColor}"></i>
+                                </div>
+                                <div class="bg-white border border-gray-100 rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow">
+                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
+                                        <h3 class="text-base sm:text-lg font-bold text-gray-900 m-0">${item.title}</h3>
+                                        <div class="flex flex-col sm:items-end text-sm">
+                                            <span class="font-medium text-gray-900">${formatDate(item.date)}</span>
+                                            <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium mt-1 ${badgeColor} w-fit">
+                                                ${item.dayDisplay}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="text-gray-600 text-sm leading-relaxed">${item.desc}</div>
                                 </div>
                             </div>
-                            <div class="text-gray-600 text-sm leading-relaxed">${item.desc}</div>
-                        </div>
-                    </div>
-                `;
-            });
+                        `;
+                    });
 
-            html += '</div>';
-            scheduleContainer.innerHTML = html;
-            
-            // Re-initialize Lucide icons for the newly injected HTML
-            lucide.createIcons();
-            
-            // Smooth scroll to top of schedule
-            scheduleContainer.scrollTop = 0;
-        }
+                    html += '</div>';
+                    scheduleContainer.innerHTML = html;
+                    
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                    scheduleContainer.scrollTop = 0;
+                }
+            }
+
+            // Run initialization depending on document state
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializePlanner);
+            } else {
+                initializePlanner();
+            }
+        })();
     </script>
-</body>
-</html>
+</div>
